@@ -5,8 +5,8 @@ layout: default
   .post-hero{
     padding:clamp(40px,6vw,72px) 0 clamp(32px,4vw,48px);
     background:
-      radial-gradient(120% 90% at 88% -10%,rgba(29,107,68,.18),transparent 60%),
-      radial-gradient(90% 70% at -10% 110%,rgba(200,145,42,.1),transparent 55%),
+      radial-gradient(120% 90% at 88% -10%,rgba(74,144,181,.12),transparent 60%),
+      radial-gradient(90% 70% at -10% 110%,rgba(255,149,0,.08),transparent 55%),
       var(--cream);
   }
   .post-kicker{
@@ -14,7 +14,7 @@ layout: default
     font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
     color:var(--green);margin-bottom:14px;
   }
-  .post-kicker::before{content:"";width:26px;height:1.5px;background:var(--gold)}
+  .post-kicker::before{content:"";width:26px;height:1.5px;background:var(--orange)}
   .post-title{font-size:clamp(28px,5vw,52px);margin-bottom:16px;max-width:22ch}
   .post-title em{font-style:italic;color:var(--green)}
   .post-meta{font-size:14px;color:var(--ink-soft)}
@@ -38,28 +38,28 @@ layout: default
   .post-body strong{color:var(--ink);font-weight:700}
   .post-body em{color:var(--green)}
   .post-body blockquote{
-    border-left:3px solid var(--gold);
+    border-left:3px solid var(--orange);
     padding:12px 20px;margin:2em 0;
     background:var(--cream-2);border-radius:0 8px 8px 0;
     font-family:'Fraunces',serif;font-size:1.1em;color:var(--ink);
   }
   .post-body img{width:100%;border-radius:10px;margin:1.5em 0}
-  .post-body a{color:var(--green);text-decoration:underline;text-underline-offset:3px}
+  .post-body a{color:var(--blue);text-decoration:underline;text-underline-offset:3px}
   .post-body hr{border:none;border-top:1px solid var(--line);margin:2.5em 0}
 
   .back-link{
     display:inline-flex;align-items:center;gap:8px;
-    font-size:14px;font-weight:600;color:var(--green);
+    font-size:14px;font-weight:600;color:var(--blue);
     margin-bottom:28px;
   }
-  .back-link:hover{color:var(--gold)}
+  .back-link:hover{color:var(--orange)}
   .back-link::before{content:"←"}
 
   .post-cta{
     max-width:68ch;margin:0 auto 80px;
-    background:var(--navy);border-radius:16px;
+    background:var(--blue);border-radius:16px;
     padding:36px;text-align:center;
-    box-shadow:0 12px 40px -12px rgba(13,27,42,.28);
+    box-shadow:0 12px 40px -12px rgba(74,144,181,.3);
   }
   .post-cta h3{
     font-family:'Fraunces',serif;font-size:clamp(20px,3vw,26px);
@@ -68,10 +68,10 @@ layout: default
   .post-cta p{color:rgba(255,255,255,.75);font-size:15px;margin-bottom:6px;line-height:1.6}
   .post-cta-btn{
     display:inline-block;margin-top:18px;
-    background:var(--gold);color:#fff;font-weight:700;font-size:15px;
+    background:var(--orange);color:#fff;font-weight:700;font-size:15px;
     padding:14px 28px;border-radius:12px;transition:background .15s ease;
   }
-  .post-cta-btn:hover{background:var(--gold-deep)}
+  .post-cta-btn:hover{background:var(--orange-dark)}
   .post-cta-links{
     margin-top:20px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12);
     font-size:14px;color:rgba(255,255,255,.55);
