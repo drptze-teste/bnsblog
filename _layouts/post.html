@@ -1,0 +1,116 @@
+---
+layout: default
+---
+<style>
+  .post-hero{
+    padding:clamp(40px,6vw,72px) 0 clamp(32px,4vw,48px);
+    background:
+      radial-gradient(120% 90% at 88% -10%,rgba(29,107,68,.18),transparent 60%),
+      radial-gradient(90% 70% at -10% 110%,rgba(200,145,42,.1),transparent 55%),
+      var(--cream);
+  }
+  .post-kicker{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--green);margin-bottom:14px;
+  }
+  .post-kicker::before{content:"";width:26px;height:1.5px;background:var(--gold)}
+  .post-title{font-size:clamp(28px,5vw,52px);margin-bottom:16px;max-width:22ch}
+  .post-title em{font-style:italic;color:var(--green)}
+  .post-meta{font-size:14px;color:var(--ink-soft)}
+  .post-meta time{font-weight:600;color:var(--ink)}
+
+  .post-cover{
+    width:100%;max-height:480px;object-fit:cover;
+    border-radius:16px;margin:32px 0;
+    box-shadow:0 12px 40px -8px rgba(13,27,42,.2);
+  }
+
+  .post-body{
+    max-width:68ch;margin:0 auto;
+    padding:40px 0 80px;
+  }
+  .post-body h2{font-size:clamp(22px,3vw,30px);margin:2em 0 .6em;color:var(--ink)}
+  .post-body h3{font-size:clamp(18px,2.4vw,24px);margin:1.8em 0 .5em;color:var(--green)}
+  .post-body p{margin-bottom:1.4em;font-size:clamp(15px,1.8vw,17px);color:var(--ink-soft);line-height:1.75}
+  .post-body ul,.post-body ol{margin:0 0 1.4em 1.4em;font-size:clamp(15px,1.8vw,17px);color:var(--ink-soft);line-height:1.75}
+  .post-body li{margin-bottom:.4em}
+  .post-body strong{color:var(--ink);font-weight:700}
+  .post-body em{color:var(--green)}
+  .post-body blockquote{
+    border-left:3px solid var(--gold);
+    padding:12px 20px;margin:2em 0;
+    background:var(--cream-2);border-radius:0 8px 8px 0;
+    font-family:'Fraunces',serif;font-size:1.1em;color:var(--ink);
+  }
+  .post-body img{width:100%;border-radius:10px;margin:1.5em 0}
+  .post-body a{color:var(--green);text-decoration:underline;text-underline-offset:3px}
+  .post-body hr{border:none;border-top:1px solid var(--line);margin:2.5em 0}
+
+  .back-link{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:14px;font-weight:600;color:var(--green);
+    margin-bottom:28px;
+  }
+  .back-link:hover{color:var(--gold)}
+  .back-link::before{content:"←"}
+
+  .post-cta{
+    max-width:68ch;margin:0 auto 80px;
+    background:var(--navy);border-radius:16px;
+    padding:36px;text-align:center;
+    box-shadow:0 12px 40px -12px rgba(13,27,42,.28);
+  }
+  .post-cta h3{
+    font-family:'Fraunces',serif;font-size:clamp(20px,3vw,26px);
+    color:#fff;margin-bottom:10px;
+  }
+  .post-cta p{color:rgba(255,255,255,.75);font-size:15px;margin-bottom:6px;line-height:1.6}
+  .post-cta-btn{
+    display:inline-block;margin-top:18px;
+    background:var(--gold);color:#fff;font-weight:700;font-size:15px;
+    padding:14px 28px;border-radius:12px;transition:background .15s ease;
+  }
+  .post-cta-btn:hover{background:var(--gold-deep)}
+  .post-cta-links{
+    margin-top:20px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12);
+    font-size:14px;color:rgba(255,255,255,.55);
+  }
+  .post-cta-links a{color:rgba(255,255,255,.85);font-weight:600;text-decoration:none}
+  .post-cta-links a:hover{color:var(--gold);text-decoration:underline}
+</style>
+
+<section class="post-hero">
+  <div class="wrap">
+    <a href="{{ site.baseurl }}/blog/" class="back-link">Voltar ao Blog</a>
+    <p class="post-kicker">Benesse Blog</p>
+    <h1 class="post-title">{{ page.title }}</h1>
+    <p class="post-meta">
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%d de %B de %Y" }}</time>
+      {% if page.author %} · {{ page.author }}{% endif %}
+    </p>
+  </div>
+</section>
+
+<div class="wrap">
+  {% if page.cover %}
+  {% if page.cover contains '://' %}{% assign cover_url = page.cover %}{% else %}{% assign cover_url = page.cover | relative_url %}{% endif %}
+  <img src="{{ cover_url }}" alt="{{ page.title }}" class="post-cover" />
+  {% endif %}
+
+  <article class="post-body">
+    {{ content }}
+  </article>
+
+  <aside class="post-cta">
+    <h3>Benesse Gestão Esportiva</h3>
+    <p>Eventos corporativos, quick massagem, NR-1, gestão de spa e academias de condomínio.</p>
+    <p style="color:rgba(255,255,255,.6);font-size:14px">São Paulo, SP</p>
+    <a href="https://www.benessegestaoesportiva.com.br" target="_blank" rel="noopener" class="post-cta-btn">Conheça a Benesse →</a>
+    <p class="post-cta-links">
+      <a href="https://www.benessegestaoesportiva.com.br" target="_blank" rel="noopener">Site oficial</a> ·
+      <a href="https://sanopilates.com.br" target="_blank" rel="noopener">Estúdio Benesse Pilates</a> ·
+      <a href="https://www.instagram.com/benessegestaoesportiva" target="_blank" rel="noopener">Instagram</a>
+    </p>
+  </aside>
+</div>

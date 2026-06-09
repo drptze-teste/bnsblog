@@ -1,0 +1,198 @@
+---
+layout: default
+title: "Blog — Benesse Gestão Esportiva"
+description: "Eventos corporativos, NR-1, quick massagem, gestão de spa e academias — conteúdo da Benesse Gestão Esportiva."
+---
+<style>
+  .hero{
+    padding:clamp(60px,10vw,120px) 0 clamp(48px,7vw,88px);
+    background:
+      radial-gradient(120% 90% at 90% -10%,rgba(29,107,68,.22),transparent 55%),
+      radial-gradient(80% 60% at -5% 110%,rgba(200,145,42,.14),transparent 50%),
+      var(--navy);
+    color:#fff;
+  }
+  .hero-kicker{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:18px;
+  }
+  .hero-kicker::before{content:"";width:26px;height:1.5px;background:var(--gold)}
+  .hero h1{
+    font-size:clamp(36px,6vw,68px);margin-bottom:20px;
+    color:#fff;max-width:18ch;line-height:1.05;
+  }
+  .hero h1 em{font-style:italic;color:var(--gold)}
+  .hero p{
+    font-size:clamp(16px,2vw,19px);color:rgba(255,255,255,.75);
+    max-width:50ch;margin-bottom:36px;line-height:1.65;
+  }
+  .hero-btns{display:flex;flex-wrap:wrap;gap:14px}
+  .btn-hero{
+    display:inline-block;font-weight:700;font-size:15px;
+    padding:14px 26px;border-radius:12px;
+    transition:transform .1s ease,background .15s ease;
+  }
+  .btn-hero:active{transform:scale(.97)}
+  .btn-gold{background:var(--gold);color:#fff}
+  .btn-gold:hover{background:var(--gold-deep)}
+  .btn-outline{background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.25)}
+  .btn-outline:hover{background:rgba(255,255,255,.18)}
+
+  /* Serviços */
+  .servicos{padding:72px 0}
+  .section-label{
+    font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--green);margin-bottom:10px;
+  }
+  .section-title{font-size:clamp(28px,4vw,44px);margin-bottom:48px;max-width:22ch}
+  .servicos-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:24px;
+  }
+  .card-servico{
+    background:#fff;border-radius:16px;padding:28px;
+    border:1px solid var(--line);
+    transition:transform .2s ease,box-shadow .2s ease;
+  }
+  .card-servico:hover{transform:translateY(-4px);box-shadow:0 16px 40px -12px rgba(13,27,42,.14)}
+  .card-icon{font-size:32px;margin-bottom:14px}
+  .card-servico h3{font-size:18px;margin-bottom:8px;color:var(--ink)}
+  .card-servico p{font-size:14px;color:var(--ink-soft);line-height:1.6}
+
+  /* Posts recentes */
+  .posts-recentes{padding:72px 0;background:var(--cream-2)}
+  .posts-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:28px;margin-top:0;
+  }
+  .post-card{
+    background:#fff;border-radius:16px;overflow:hidden;
+    border:1px solid var(--line);
+    transition:transform .2s ease,box-shadow .2s ease;
+  }
+  .post-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px -12px rgba(13,27,42,.14)}
+  .post-card-cover{width:100%;height:190px;object-fit:cover;display:block;background:var(--cream-2)}
+  .post-card-cover-placeholder{
+    width:100%;height:190px;
+    background:linear-gradient(135deg,var(--navy),var(--green) 200%);
+    display:flex;align-items:center;justify-content:center;
+    font-size:40px;color:rgba(255,255,255,.25);
+  }
+  .post-card-body{padding:22px}
+  .post-card-date{font-size:12px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+  .post-card-title{font-size:18px;margin-bottom:8px;line-height:1.25}
+  .post-card-title a:hover{color:var(--green)}
+  .post-card-excerpt{font-size:13px;color:var(--ink-soft);line-height:1.6;margin-bottom:16px}
+  .post-card-link{font-size:13px;font-weight:700;color:var(--gold);display:inline-flex;align-items:center;gap:5px}
+  .post-card-link::after{content:"→";transition:transform .15s}
+  .post-card-link:hover::after{transform:translateX(4px)}
+
+  /* CTA final */
+  .cta-final{
+    padding:80px 0;text-align:center;
+  }
+  .cta-final h2{font-size:clamp(28px,4vw,44px);margin-bottom:14px}
+  .cta-final h2 em{font-style:italic;color:var(--green)}
+  .cta-final p{font-size:16px;color:var(--ink-soft);max-width:46ch;margin:0 auto 32px}
+  .btn-cta{
+    display:inline-block;background:var(--navy);color:#fff;
+    font-weight:700;font-size:15px;padding:16px 32px;
+    border-radius:12px;transition:background .15s ease;
+  }
+  .btn-cta:hover{background:var(--navy-soft)}
+</style>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <p class="hero-kicker">Benesse Gestão Esportiva</p>
+    <h1>Bem-estar que <em>transforma</em> empresas</h1>
+    <p>Eventos corporativos, NR-1, quick massagem, gestão de spa e academias de condomínio — tudo com gestão profissional e resultado mensurável.</p>
+    <div class="hero-btns">
+      <a href="/blog/" class="btn-hero btn-gold">Ver todos os artigos</a>
+      <a href="https://www.benessegestaoesportiva.com.br" target="_blank" rel="noopener" class="btn-hero btn-outline">Site oficial →</a>
+    </div>
+  </div>
+</section>
+
+<!-- SERVIÇOS -->
+<section class="servicos">
+  <div class="wrap">
+    <p class="section-label">O que fazemos</p>
+    <h2 class="section-title">Soluções para empresas e condomínios</h2>
+    <div class="servicos-grid">
+      <div class="card-servico">
+        <div class="card-icon">🏢</div>
+        <h3>Eventos Corporativos</h3>
+        <p>Ações de bem-estar, team building e qualidade de vida para equipes de todos os tamanhos.</p>
+      </div>
+      <div class="card-servico">
+        <div class="card-icon">💆</div>
+        <h3>Quick Massagem</h3>
+        <p>Sessões de massagem expressa no ambiente de trabalho — relaxamento em 15 minutos, sem precisar sair da empresa.</p>
+      </div>
+      <div class="card-servico">
+        <div class="card-icon">📋</div>
+        <h3>NR-1 e Saúde Mental</h3>
+        <p>Programas estruturados para atender às exigências da NR-1, com documentação e relatórios incluídos.</p>
+      </div>
+      <div class="card-servico">
+        <div class="card-icon">🏊</div>
+        <h3>Gestão de Spa</h3>
+        <p>Operação e gestão completa de spas corporativos e de condomínio, com profissionais contratados pela Benesse.</p>
+      </div>
+      <div class="card-servico">
+        <div class="card-icon">🏋️</div>
+        <h3>Academias de Condomínio</h3>
+        <p>Gestão profissional de academias em condomínios residenciais — equipamentos, manutenção e profissionais.</p>
+      </div>
+      <div class="card-servico">
+        <div class="card-icon">🎈</div>
+        <h3>Recreação Infantil</h3>
+        <p>Programas de recreação para crianças em condomínios e eventos corporativos family-friendly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POSTS RECENTES -->
+<section class="posts-recentes">
+  <div class="wrap">
+    <p class="section-label">Blog</p>
+    <h2 class="section-title" style="margin-bottom:36px">Últimos artigos</h2>
+    <div class="posts-grid">
+      {% for post in site.posts limit:3 %}
+      <article class="post-card">
+        {% if post.cover %}
+        <img src="{{ post.cover }}" alt="{{ post.title }}" class="post-card-cover" />
+        {% else %}
+        <div class="post-card-cover-placeholder">✦</div>
+        {% endif %}
+        <div class="post-card-body">
+          <p class="post-card-date">{{ post.date | date: "%d %b %Y" }}</p>
+          <h3 class="post-card-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+          {% if post.excerpt %}
+          <p class="post-card-excerpt">{{ post.excerpt | strip_html | truncatewords: 22 }}</p>
+          {% endif %}
+          <a href="{{ post.url | relative_url }}" class="post-card-link">Ler artigo</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    <div style="text-align:center;margin-top:40px">
+      <a href="/blog/" class="btn-cta">Ver todos os artigos →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="wrap">
+    <h2>Pronto para cuidar da sua <em>equipe</em>?</h2>
+    <p>Fale com a Benesse e descubra o programa ideal para o perfil da sua empresa ou condomínio.</p>
+    <a href="https://www.benessegestaoesportiva.com.br" target="_blank" rel="noopener" class="btn-cta">Falar com a Benesse →</a>
+  </div>
+</section>
