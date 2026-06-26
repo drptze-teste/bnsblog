@@ -19,7 +19,7 @@ const temasFallback = [
   'Quick massagem corporativa: como reduzir o estresse da equipe em 15 minutos',
   'Eventos de bem-estar para empresas: como organizar e o que esperar',
   'Academia de condomínio: como a gestão profissional valoriza o empreendimento',
-  'Ginástica laboral e NR-1: tudo que o RH precisa saber',
+  'Ginástica laboral na prática: exercícios simples que previnem dores e lesões no trabalho',
   'Recreação infantil em condomínios: segurança, estrutura e gestão',
   'Gestão de spa corporativo: diferencial que retém talentos',
   'Palestras de qualidade de vida: como escolher os temas certos para sua empresa',
@@ -27,6 +27,10 @@ const temasFallback = [
   'Como a Benesse cuida da gestão de funcionários de academias e spas',
   'Eventos de team building com foco em saúde: tendência nas empresas em 2026',
   'Programa de bem-estar corporativo: passo a passo para implementar na sua empresa',
+  'Massagem corporativa: como o quick massage alivia tensão e melhora o foco da equipe',
+  'Atividades socioesportivas na empresa: integração, clima organizacional e bem-estar',
+  'Exercício físico e prevenção do burnout: como o movimento protege a saúde da equipe',
+  'Gincanas e atividades esportivas corporativas: engajamento e espírito de equipe',
 ];
 const temaFallback = temasFallback[semana % temasFallback.length];
 
@@ -64,16 +68,19 @@ function palavrasSignificativas(texto) {
 function assuntoDe(texto) {
   const t = texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const regras = [
-    ['nr1',       /\bnr[\s-]?1?\b|psicossoci|saude mental|conformidade/],
-    ['massagem',  /massagem/],
-    ['spa',       /\bspa\b/],
-    ['academia',  /academia|condominio/],
-    ['ginastica', /ginastica laboral/],
-    ['recreacao', /recreacao|infantil/],
-    ['ergonomia', /ergonomia|postura/],
-    ['evento',    /evento|team building/],
-    ['palestra',  /palestra/],
-    ['bemestar',  /bem-estar|qualidade de vida/],
+    ['nr1',          /\bnr[\s-]?1?\b|psicossoci|saude mental|conformidade/],
+    ['burnout',      /burnout|esgotamento|exausta/],
+    ['massagem',     /massagem/],
+    ['ginastica',    /ginastica/],
+    ['socioesportiv',/socioesportiv|gincana|atividade.{0,4}esportiv/],
+    ['exercicio',    /exercicio|atividade fisic/],
+    ['spa',          /\bspa\b/],
+    ['academia',     /academia|condominio/],
+    ['recreacao',    /recreacao|infantil/],
+    ['ergonomia',    /ergonomia|postura/],
+    ['evento',       /evento|team building/],
+    ['palestra',     /palestra/],
+    ['bemestar',     /bem-estar|qualidade de vida/],
   ];
   for (const [nome, re] of regras) if (re.test(t)) return nome;
   return null; // assunto genérico
@@ -131,11 +138,12 @@ const inline2 = galeria[(semana + 6) % n];
 
 // ── Palavras-chave para Google Trends ──────────────────────────────────────
 const palavrasChave = [
-  'NR-1',
-  'saúde mental trabalho',
   'bem-estar corporativo',
   'qualidade de vida empresa',
   'ginástica laboral',
+  'massagem corporativa',
+  'burnout',
+  'exercício físico no trabalho',
   'academia condomínio',
   'eventos corporativos',
 ];
