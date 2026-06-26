@@ -64,7 +64,7 @@ function palavrasSignificativas(texto) {
 function assuntoDe(texto) {
   const t = texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const regras = [
-    ['nr1',       /\bnr[\s-]?1\b|riscos psicossociais|saude mental/],
+    ['nr1',       /\bnr[\s-]?1?\b|psicossoci|saude mental|conformidade/],
     ['massagem',  /massagem/],
     ['spa',       /\bspa\b/],
     ['academia',  /academia|condominio/],
@@ -214,11 +214,16 @@ async function main() {
     systemInstruction: 'Você é o editor de conteúdo do Blog da Benesse Gestão Esportiva, empresa especializada em eventos corporativos de bem-estar, quick massagem, palestras sobre qualidade de vida, NR-1, gestão de spa e gestão de academias de condomínio. A Benesse também atua com recreação infantil e é a contratante oficial dos funcionários que gerencia. Escreva sempre em português brasileiro, com tom profissional mas acessível, como se estivesse explicando para um gestor de RH ou síndico de condomínio. Siga exatamente o formato pedido pelo usuário.',
   });
 
+  const recentesTxt = recentes.length ? recentes.map(t => `- ${t}`).join('\n') : '- (nenhuma)';
+
   const userPrompt = `Gere um post de blog para a semana ${semana} do ano ${ano}.
 
-O tema principal vem das buscas mais quentes do Google Brasil: **${temaDestaque}**
-Tema rotativo de apoio: ${temaFallback}
-${contextoTrends}
+Escreva ESPECIFICAMENTE e SOMENTE sobre este tema: **${temaDestaque}**
+
+⚠️ REGRA OBRIGATÓRIA DE NÃO-REPETIÇÃO: é PROIBIDO escrever sobre NR-1, saúde mental no trabalho, riscos psicossociais, conformidade ou produtividade — A MENOS que o tema acima seja exatamente sobre isso. As últimas matérias já cobriram esse assunto à exaustão. Se o tema acima for curto/genérico, desenvolva-o dentro de OUTRO serviço da Benesse (eventos corporativos, quick massagem, gestão de spa, academia de condomínio, ginástica laboral, recreação infantil) — nunca volte para NR-1.
+
+Matérias recentes já publicadas (NÃO repita o assunto delas):
+${recentesTxt}
 
 Responda EXATAMENTE neste formato, sem nada antes nem depois:
 
