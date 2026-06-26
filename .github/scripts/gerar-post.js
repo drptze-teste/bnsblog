@@ -30,6 +30,89 @@ const temasFallback = [
 ];
 const temaFallback = temasFallback[semana % temasFallback.length];
 
+// ── Anti-repetição: não repetir o assunto dos últimos posts ──────────────────
+const STOP_WORDS = new Set([
+  'a','o','e','de','do','da','dos','das','em','no','na','nos','nas',
+  'por','para','com','como','que','se','um','uma','ao','aos','sua','seu',
+  'sao','ou','vs','mas','nem','ja','nao','mais','menos','muito','bem','mal',
+  'isso','esta','este','qual','quem','quando','onde','porque','pois','tudo',
+  'todo','toda','depois','antes','ainda','mesmo','entre','sobre','aqui','agora',
+]);
+
+// Palavras comuns ao domínio (aparecem em quase todo título) — não indicam tema
+const PALAVRAS_COMUNS = new Set([
+  'benesse','gestao','esportiva','empresa','empresas','corporativo','corporativa',
+  'equipe','equipes','trabalho','precisa','fazer','passos','estrategias',
+]);
+
+// Quebra texto em palavras significativas; preserva "NR-1" como token "nr1"
+function tokeniza(texto) {
+  return texto
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/\bnr[\s-]?1\b/g, ' nr1 ')        // mantém o tema NR-1 como 1 token
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(p => p.length > 2 && !STOP_WORDS.has(p));
+}
+
+function palavrasSignificativas(texto) {
+  return new Set(tokeniza(texto).filter(p => !PALAVRAS_COMUNS.has(p)));
+}
+
+// Classifica o assunto macro de um tema/título (regra de "não repetir o tema")
+function assuntoDe(texto) {
+  const t = texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const regras = [
+    ['nr1',       /\bnr[\s-]?1\b|riscos psicossociais|saude mental/],
+    ['massagem',  /massagem/],
+    ['spa',       /\bspa\b/],
+    ['academia',  /academia|condominio/],
+    ['ginastica', /ginastica laboral/],
+    ['recreacao', /recreacao|infantil/],
+    ['ergonomia', /ergonomia|postura/],
+    ['evento',    /evento|team building/],
+    ['palestra',  /palestra/],
+    ['bemestar',  /bem-estar|qualidade de vida/],
+  ];
+  for (const [nome, re] of regras) if (re.test(t)) return nome;
+  return null; // assunto genérico
+}
+
+// Lê os títulos dos últimos N posts publicados (mais recentes primeiro)
+function lerPostsRecentes(n = 3) {
+  try {
+    const dir = path.join(process.cwd(), '_posts');
+    return fs.readdirSync(dir)
+      .filter(f => f.endsWith('.md'))
+      .sort().reverse().slice(0, n)
+      .map(f => {
+        const txt = fs.readFileSync(path.join(dir, f), 'utf8');
+        const m = txt.match(/^title:\s*(.+)$/im);
+        return (m ? m[1].trim() : f).replace(/^["']|["']$/g, '');
+      });
+  } catch (e) {
+    console.log(`Não foi possível ler posts recentes: ${e.message}`);
+    return [];
+  }
+}
+
+// Um candidato repete se: (1) mesmo assunto macro de um post recente, OU
+// (2) compartilha 2+ palavras-chave (ou metade) do título com algum recente
+function ehRepetitivo(candidato, recentes) {
+  const aCand = assuntoDe(candidato);
+  if (aCand && recentes.map(assuntoDe).includes(aCand)) return true;
+  const cand = palavrasSignificativas(candidato);
+  if (cand.size === 0) return false;
+  for (const titulo of recentes) {
+    const post = palavrasSignificativas(titulo);
+    let comuns = 0;
+    for (const p of cand) if (post.has(p)) comuns++;
+    if (comuns >= 2 || comuns / cand.size >= 0.5) return true;
+  }
+  return false;
+}
+
 // ── Galeria de fotos (Unsplash, livres) — corporativo / esporte / bem-estar ──
 const galeria = [
   { url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80', alt: 'Equipe corporativa em evento de bem-estar' },
@@ -84,7 +167,7 @@ async function buscarTendencias() {
 async function main() {
   // ── Tendências ─────────────────────────────────────────────────────────────
   let contextoTrends = '';
-  let temaDestaque = temaFallback;
+  let trendQueries = [];
 
   try {
     console.log('Buscando tendências no Google Trends Brasil...');
@@ -93,7 +176,7 @@ async function main() {
     if (tendencias.length > 0) {
       tendencias.sort((a, b) => b.value - a.value);
       const top5 = tendencias.slice(0, 5);
-      temaDestaque = top5[0].query;
+      trendQueries = top5.map(t => t.query);
       contextoTrends = `\n\nTendências atuais no Google Brasil (use como inspiração):\n` +
         top5.map((t, i) => `${i + 1}. "${t.query}" (relacionado a: ${t.origem})`).join('\n');
       console.log('Top tendências:');
@@ -105,7 +188,24 @@ async function main() {
     console.log(`Erro trends: ${e.message}. Usando tema rotativo.`);
   }
 
-  console.log(`\nSemana: ${semana} | Tema: ${temaDestaque}`);
+  // ── Escolher tema evitando repetir o assunto dos últimos posts ───────────────
+  const recentes = lerPostsRecentes(3);
+  console.log(`Posts recentes: ${recentes.join(' | ') || '(nenhum)'}`);
+
+  // Candidatos em ordem de preferência: tendências primeiro, depois fallback rotativo
+  const candidatos = [...trendQueries];
+  for (let i = 0; i < temasFallback.length; i++) {
+    candidatos.push(temasFallback[(semana + i) % temasFallback.length]);
+  }
+
+  let temaDestaque = candidatos.find(c => !ehRepetitivo(c, recentes));
+  if (!temaDestaque) {
+    temaDestaque = candidatos[0] || temaFallback;
+    console.log('Todos os candidatos repetem posts recentes — usando o primeiro mesmo assim.');
+  }
+
+  console.log(`\nSemana: ${semana} | Assunto recente: ${recentes.map(assuntoDe).join(',') || '—'}`);
+  console.log(`Tema escolhido: ${temaDestaque} (assunto: ${assuntoDe(temaDestaque) || 'genérico'})`);
 
   // ── Gemini ──────────────────────────────────────────────────────────────────
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);

@@ -26,6 +26,11 @@ gestão de spa e academias. Posts publicados **automaticamente toda semana** por
   - Executa `.github/scripts/gerar-post.js` (Node 20): gera o post com **Gemini + Google Trends**,
     commita e dá push (o que dispara o rebuild do Pages).
   - Requer secret do GitHub com a chave da API Gemini.
+  - **Anti-repetição (regra de tema):** o script lê os títulos dos 3 últimos posts e classifica o
+    **assunto macro** de cada um (nr1, massagem, spa, academia, evento, etc.). Monta uma lista de
+    candidatos (tendências do Trends primeiro, depois os 12 temas-fallback rotativos) e escolhe o
+    **1º candidato cujo assunto não repita** os posts recentes. Resolve o caso das 3 matérias NR-1
+    seguidas: candidatos NR-1 do Trends são descartados e cai num tema diferente (ex.: Eventos/Spa).
 - Para postar manualmente: criar `.md` em `_posts/` (formato `AAAA-MM-DD-titulo.md` com front matter) e push.
 
 ## Analytics
