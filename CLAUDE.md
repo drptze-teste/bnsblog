@@ -31,7 +31,19 @@ gestão de spa e academias. Posts publicados **automaticamente toda semana** por
     candidatos (tendências do Trends primeiro, depois os 12 temas-fallback rotativos) e escolhe o
     **1º candidato cujo assunto não repita** os posts recentes. Resolve o caso das 3 matérias NR-1
     seguidas: candidatos NR-1 do Trends são descartados e cai num tema diferente (ex.: Eventos/Spa).
+    - **Lição (26/06):** o Trends devolveu **"nr"** (sem o "1") e passou como genérico → Gemini voltou pro NR-1.
+      `assuntoDe` agora pega `nr` solto / `psicossoci` / `saúde mental` / `conformidade`. O prompt trava no tema e proíbe NR-1.
+    - **Lição (26/06):** a data do front matter era **fixa "10:00"** → ficava antes da ativação do Make e o post do mesmo
+      dia era ignorado. Agora a `date:` usa o **horário real (UTC)** da geração.
+    - **Temas no pool:** NR-1, quick massagem, ginástica laboral, eventos/team building, academia, spa, recreação,
+      ergonomia, palestras, **atividades socioesportivas**, **exercício e burnout**, bem-estar.
 - Para postar manualmente: criar `.md` em `_posts/` (formato `AAAA-MM-DD-titulo.md` com front matter) e push.
+
+## Auto-post no LinkedIn (Make.com)
+- **Feed RSS** (`jekyll-feed` → `/feed.xml`) alimenta um cenário no **Make.com** (conta login Google `drptze@gmail.com`).
+- Cenário **"Blog Benesse → LinkedIn (perfil + página)"**: RSS → "Create a User Text Post" (perfil **profzeluizceo**)
+  → "Create a Company Text Post" (página **Benesse Gestão Esportiva**). Agenda **Daily 20:00 (Brasília)**.
+- A cada matéria nova, o Make publica automaticamente no perfil e na página. Detalhes em `../BLOGS-BENESSE.md`.
 
 ## Analytics
 - **Contador de acessos:** GoatCounter (script no fim do `<body>` de `_layouts/default.html`).
