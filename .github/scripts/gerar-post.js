@@ -322,7 +322,7 @@ Regras obrigatórias:
     '---',
     'layout: post',
     `title: "${titulo}"`,
-    `date: ${dataHoje} 10:00:00 -0300`,
+    `date: ${dataHoje} ${pad(hoje.getUTCHours())}:${pad(hoje.getUTCMinutes())}:${pad(hoje.getUTCSeconds())} +0000`,
     `excerpt: "${resumo}"`,
     'author: "Equipe Benesse"',
     `cover: "${capa.url}"`,
