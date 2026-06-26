@@ -11,12 +11,13 @@ Blog automático da Benesse Gestão Esportiva — hospedado em GitHub Pages com 
 | Item | Status | Detalhes |
 |------|--------|----------|
 | **Repositório** | ✅ Criado | `drptze-teste/bnsblog` |
-| **Hospedagem** | ✅ Ativa | GitHub Pages (drptze-teste.github.io/bnsblog) |
-| **Domínio** | ⏳ Pendente | Aguardando DNS no Registro.br |
+| **Hospedagem** | ✅ Ativa | GitHub Pages + domínio próprio (CNAME, baseurl vazio) |
+| **Domínio** | ✅ Ativo | https://blog.benessegestaoesportiva.com.br |
 | **Design** | ✅ Finalizado | Paleta Benesse (azul #4A90B5, laranja #FF9500, verde #2ECC71) |
 | **Logo** | ✅ Inserido | Topo e rodapé |
 | **Primeiro Post** | ✅ Pronto | "NR-1 e Saúde Mental no Trabalho" |
-| **Automação** | ✅ Configurada | Post semanal (segundas 8h Brasília) |
+| **Automação** | ✅ Configurada | Post semanal (segundas 15h Brasília / 18h UTC) |
+| **Contador** | ✅ Configurado | GoatCounter (`bnsblog.goatcounter.com`) — requer criar a conta |
 
 ---
 
@@ -58,7 +59,7 @@ blog/
 - **Imagens:** 3 fotos de qualidade profissional (Unsplash)
 
 ### ✅ Automação Semanal
-- **Trigger:** Toda segunda-feira às 8h (Brasília)
+- **Trigger:** Toda segunda-feira às 15h (Brasília / 18h UTC)
 - **Processo:**
   1. Busca tendências no Google Trends Brasil
   2. Pede ao Gemini um post sobre gestão esportiva/bem-estar
@@ -78,10 +79,10 @@ blog/
 
 | URL | Status | Observação |
 |-----|--------|-----------|
-| `https://drptze-teste.github.io/bnsblog/` | ✅ Online | GitHub Pages (temporário) |
-| `https://blog.benessegestaoesportiva.com.br/` | ⏳ Pendente | Aguardando DNS CNAME |
-| `https://drptze-teste.github.io/bnsblog/blog/` | ✅ Online | Listagem de posts |
-| `https://drptze-teste.github.io/bnsblog/admin/` | ✅ Online | Painel de criação |
+| `https://blog.benessegestaoesportiva.com.br/` | ✅ Online | Domínio próprio (oficial) |
+| `https://blog.benessegestaoesportiva.com.br/blog/` | ✅ Online | Listagem de posts |
+| `https://blog.benessegestaoesportiva.com.br/admin/` | ✅ Online | Painel de criação |
+| `https://drptze-teste.github.io/bnsblog/` | ↪️ Redireciona | GitHub Pages → faz 301 para o domínio próprio |
 
 ---
 
@@ -106,7 +107,7 @@ Valor: drptze-teste.github.io
 ## 📝 Posts Automáticos
 
 ### Próximo Post
-- **Data:** Segunda-feira, 16/06/2026 às 8h Brasília
+- **Data:** Toda segunda-feira às 15h Brasília (18h UTC)
 - **Tema:** Gerado automaticamente via Google Trends
 - **Temas em rotação:**
   - NR-1 e saúde mental
@@ -168,7 +169,7 @@ Cada post segue este padrão:
 - [x] Paleta de cores atualizada
 - [x] Primeiro post criado manualmente
 - [x] Script de geração automática implementado
-- [x] Workflow configurado (segundas 8h)
+- [x] Workflow configurado (segundas 15h Brasília / 18h UTC)
 - [x] Admin panel funcional
 - [x] URLs corretas (baseurl e url ajustados)
 - [x] Secrets do Gemini configurados
@@ -247,7 +248,7 @@ Edite o arquivo `.github/scripts/gerar-post.js`:
    - Testar responsividade mobile
 
 4. **Monitorar Primeira Automação**
-   - Segunda-feira 16/06 às 8h
+   - Segunda-feira às 15h Brasília (18h UTC)
    - Verificar se novo post foi criado
    - Confirmar notificação no WhatsApp (se ativado)
 

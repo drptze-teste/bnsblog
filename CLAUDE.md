@@ -16,7 +16,8 @@ gestão de spa e academias. Posts publicados **automaticamente toda semana** por
 ## Identidade (confirmar antes de agir)
 - Pasta: `C:\Users\User\Downloads\bns-blog`
 - Remote git: `https://github.com/drptze-teste/bnsblog` · branch `main`
-- URL publicada: `https://drptze-teste.github.io/bnsblog` (baseurl `/bnsblog`)
+- URL publicada: **https://blog.benessegestaoesportiva.com.br** (domínio próprio via `CNAME`; `baseurl` **vazio**)
+  - O github.io (`drptze-teste.github.io/bnsblog`) faz **301** para o domínio próprio.
 
 ## Deploy & automação
 - **Deploy:** automático via GitHub Pages no push para `main`.
@@ -27,7 +28,16 @@ gestão de spa e academias. Posts publicados **automaticamente toda semana** por
   - Requer secret do GitHub com a chave da API Gemini.
 - Para postar manualmente: criar `.md` em `_posts/` (formato `AAAA-MM-DD-titulo.md` com front matter) e push.
 
+## Analytics
+- **Contador de acessos:** GoatCounter (script no fim do `<body>` de `_layouts/default.html`).
+  - Privacidade: sem cookies, sem IP armazenado, sem aviso LGPD.
+  - Painel: **https://bnsblog.goatcounter.com** (requer conta gratuita com o código **`bnsblog`**).
+  - **Badge total** "👁️ X visitas no site" no rodapé de todas as páginas (`.site-views` em `default.html`).
+  - **Contador por matéria:** `post.html` consome `https://bnsblog.goatcounter.com/counter/<path>.json` e mostra 👁️ ao lado da data. Requer a opção **"Allow adding visitor counts on your website"** habilitada em GoatCounter → Settings.
+
 ## Convenções / armadilhas
+- **`baseurl` deve ficar VAZIO** enquanto o site estiver no domínio próprio servido na raiz. Se voltar a `/bnsblog`, o logo e os links dos posts quebram (404). _(Bug já resolvido em 26/06/2026: baseurl estava `/bnsblog`, logo e matérias davam 404 no domínio próprio.)_
+- **Não apagar o `CNAME`** — é o que mantém `blog.benessegestaoesportiva.com.br` apontando para o Pages. O bot da automação dá push em `main`; o CNAME precisa continuar versionado.
 - **Decap CMS:** o `<script>` do Decap deve ficar no **fim do `<body>`**, nunca no `<head>` — senão a página `/admin` fica em branco.
 - Posts ficam em `_posts/`; imagens em `images/`.
 - É blog Jekyll, **não** React — sem `npm run build` de SPA aqui.

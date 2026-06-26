@@ -85,6 +85,13 @@
   .footer-brand{
     font-family:'Fraunces',serif;font-size:20px;color:#fff;font-weight:500;
   }
+  .site-views{
+    display:none;align-items:center;gap:6px;
+    font-size:13px;color:rgba(255,255,255,.75);font-weight:600;
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+    border-radius:100px;padding:6px 14px;
+  }
+  .site-views svg{width:15px;height:15px;stroke:var(--orange)}
 </style>
 </head>
 <body>
@@ -113,8 +120,35 @@
     <p>Eventos corporativos · Quick massagem · NR-1 · Gestão de Spa e Academias<br>
     São Paulo, SP · <a href="https://www.benessegestaoesportiva.com.br" target="_blank" rel="noopener">benessegestaoesportiva.com.br</a></p>
     <p>© {{ 'now' | date: "%Y" }} Benesse Gestão Esportiva</p>
+    <span class="site-views" id="site-views">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span id="site-views-count">0</span> visitas no site
+    </span>
   </div>
 </footer>
+
+<!-- Contador total de visitas do site (endpoint público GoatCounter) -->
+<script>
+(async () => {
+  try {
+    const res = await fetch('https://bnsblog.goatcounter.com/counter/TOTAL.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const total = data.count_unique || data.count;
+    if (total) {
+      document.getElementById('site-views-count').textContent = total;
+      document.getElementById('site-views').style.display = 'inline-flex';
+    }
+  } catch (err) {
+    console.log('Contador do site indisponível:', err.message);
+  }
+})();
+</script>
+
+<!-- GoatCounter — contagem de acessos (privacidade: sem cookies, sem IP armazenado) -->
+<!-- Painel: https://bnsblog.goatcounter.com  ·  conta gratuita em goatcounter.com com o código "bnsblog" -->
+<script data-goatcounter="https://bnsblog.goatcounter.com/count"
+        async src="https://gc.zgo.at/count.js"></script>
 
 </body>
 </html>

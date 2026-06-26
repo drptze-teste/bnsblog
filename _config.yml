@@ -1,7 +1,7 @@
 title: "Benesse Gestão Esportiva"
 description: "Eventos corporativos, bem-estar, NR-1, gestão de spa e academias — dicas e novidades da Benesse."
-url: "https://drptze-teste.github.io"
-baseurl: "/bnsblog"
+url: "https://blog.benessegestaoesportiva.com.br"
+baseurl: ""
 
 exclude:
   - README.md
