@@ -10,3 +10,7 @@ exclude:
   - node_modules/
 
 permalink: /blog/:year/:month/:day/:title/
+
+# RSS feed (jekyll-feed) — gera /feed.xml, usado para automação (LinkedIn via Make/Zapier/Buffer)
+plugins:
+  - jekyll-feed
