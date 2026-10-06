@@ -2,6 +2,7 @@ const googleTrends = require('google-trends-api');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 
 // ── Datas e semana ─────────────────────────────────────────────────────────
 const hoje = new Date();
@@ -33,6 +34,17 @@ const temasFallback = [
   'Gincanas e atividades esportivas corporativas: engajamento e espírito de equipe',
 ];
 const temaFallback = temasFallback[semana % temasFallback.length];
+
+// ── Estilos de título (rotação semanal p/ fugir do padrão "N passos/dicas") ──
+const estilosTitulo = [
+  'uma PERGUNTA que o gestor realmente se faz (ex.: "Programa de bem-estar dá retorno ou é só custo?")',
+  'uma afirmação CONTRAINTUITIVA que quebra um senso comum de gestão ou RH',
+  'um CUSTO ou problema concreto da empresa (ex.: "O afastamento por dor nas costas que ninguém mede")',
+  'um DADO ou achado de pesquisa como gancho',
+  'uma CENA reconhecível do ambiente de trabalho',
+  'a QUEBRA DE UM MITO comum sobre bem-estar corporativo, ginástica laboral ou gestão de equipe',
+];
+const estiloTitulo = estilosTitulo[semana % estilosTitulo.length];
 
 // ── Anti-repetição: não repetir o assunto dos últimos posts ──────────────────
 const STOP_WORDS = new Set([
@@ -120,21 +132,20 @@ function ehRepetitivo(candidato, recentes) {
   return false;
 }
 
-// ── Galeria de fotos (Unsplash, livres) — corporativo / esporte / bem-estar ──
+// ── Galeria de fotos (Unsplash) com TAG de assunto — a capa casa com o tema ──
+const QFOTO = 'w=1600&q=80&auto=format&fit=crop';
 const galeria = [
-  { url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80', alt: 'Equipe corporativa em evento de bem-estar' },
-  { url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&q=80', alt: 'Atividade física em ambiente empresarial' },
-  { url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&q=80', alt: 'Momento de relaxamento e qualidade de vida' },
-  { url: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1200&q=80', alt: 'Reunião de equipe em empresa moderna' },
-  { url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&q=80', alt: 'Meditação e equilíbrio no trabalho' },
-  { url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=1200&q=80', alt: 'Academia e espaço de bem-estar em condomínio' },
-  { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80', alt: 'Spa e relaxamento profissional' },
-  { url: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&q=80', alt: 'Ambiente de trabalho saudável e produtivo' },
+  { tag: 'evento',    url: `https://images.unsplash.com/photo-1552664730-d307ca884978?${QFOTO}`, alt: 'Equipe corporativa em evento de bem-estar' },
+  { tag: 'ginastica', url: `https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?${QFOTO}`, alt: 'Atividade física em ambiente empresarial' },
+  { tag: 'bemestar',  url: `https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?${QFOTO}`, alt: 'Momento de relaxamento e qualidade de vida' },
+  { tag: 'palestra',  url: `https://images.unsplash.com/photo-1521737711867-e3b97375f902?${QFOTO}`, alt: 'Reunião de equipe em empresa moderna' },
+  { tag: 'nr1',       url: `https://images.unsplash.com/photo-1506126613408-eca07ce68773?${QFOTO}`, alt: 'Equilíbrio e saúde mental no trabalho' },
+  { tag: 'academia',  url: `https://images.unsplash.com/photo-1540497077202-7c8a3999166f?${QFOTO}`, alt: 'Espaço de atividade física em condomínio' },
+  { tag: 'spa',       url: `https://images.unsplash.com/photo-1558618666-fcd25c85cd64?${QFOTO}`, alt: 'Spa e relaxamento profissional' },
+  { tag: 'ergonomia', url: `https://images.unsplash.com/photo-1600880292203-757bb62b4baf?${QFOTO}`, alt: 'Ambiente de trabalho saudável e produtivo' },
 ];
-const n = galeria.length;
-const capa    = galeria[semana % n];
-const inline1 = galeria[(semana + 3) % n];
-const inline2 = galeria[(semana + 6) % n];
+// Assuntos sem foto própria usam uma foto próxima
+const ALIAS_FOTO = { massagem: 'spa', burnout: 'bemestar', exercicio: 'ginastica', socioesportiv: 'evento', recreacao: 'evento' };
 
 // ── Palavras-chave para Google Trends ──────────────────────────────────────
 const palavrasChave = [
@@ -170,6 +181,72 @@ async function buscarTendencias() {
     await new Promise(r => setTimeout(r, 800));
   }
   return tendencias;
+}
+
+// ── PubMed (NCBI E-utilities, API pública) — embasa o post em pesquisa real ──
+const EUTILS = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+// Busca biomédica (em inglês) a partir do tema corporativo/ocupacional
+function queryPubMed(tema) {
+  const t = tema.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  if (/\bnr[\s-]?1?\b|psicossoci|saude mental|conformidade/.test(t)) return 'workplace mental health psychosocial intervention';
+  if (/burnout|esgotamento|exausta/.test(t)) return 'burnout workers intervention prevention';
+  if (/massagem/.test(t)) return 'workplace massage stress employees';
+  if (/ginastica|laboral/.test(t)) return 'workplace exercise musculoskeletal pain workers';
+  if (/ergonomia|postura/.test(t)) return 'office ergonomics musculoskeletal workers';
+  if (/socioesportiv|gincana|team building/.test(t)) return 'team building physical activity workplace';
+  if (/exercicio|atividade fisic/.test(t)) return 'physical activity workplace employee health';
+  if (/\bspa\b|relax/.test(t)) return 'workplace wellness program stress';
+  if (/academia|condominio/.test(t)) return 'physical activity sedentary adults';
+  if (/recreacao|infantil/.test(t)) return 'physical activity children wellbeing';
+  if (/palestra|evento/.test(t)) return 'health promotion workplace program';
+  if (/bem-estar|qualidade de vida|produtividade/.test(t)) return 'workplace wellbeing physical activity productivity';
+  return 'workplace health physical activity employees';
+}
+
+function httpsGet(url, json) {
+  return new Promise((resolve, reject) => {
+    https.get(url, { headers: { 'User-Agent': 'benesse-blog/1.0' } }, (res) => {
+      let data = '';
+      res.on('data', (c) => (data += c));
+      res.on('end', () => {
+        try { resolve(json ? JSON.parse(data) : data); }
+        catch (e) { reject(e); }
+      });
+    }).on('error', reject);
+  });
+}
+
+async function buscarEstudoPubMed(tema) {
+  try {
+    const termo = queryPubMed(tema);
+    const q = encodeURIComponent(termo);
+    const es = await httpsGet(`${EUTILS}/esearch.fcgi?db=pubmed&term=${q}&retmax=3&retmode=json&sort=relevance&datetype=pdat&reldate=4000&tool=benesse-blog`, true);
+    const ids = es?.esearchresult?.idlist || [];
+    if (!ids.length) return null;
+    await new Promise((r) => setTimeout(r, 400));
+    const sum = await httpsGet(`${EUTILS}/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json&tool=benesse-blog`, true);
+    const pmid = ids[0];
+    const rec = sum?.result?.[pmid];
+    if (!rec) return null;
+    const doiObj = (rec.articleids || []).find((a) => a.idtype === 'doi');
+    await new Promise((r) => setTimeout(r, 400));
+    let abstract = '';
+    try {
+      const txt = await httpsGet(`${EUTILS}/efetch.fcgi?db=pubmed&id=${pmid}&rettype=abstract&retmode=text&tool=benesse-blog`, false);
+      abstract = txt.replace(/\s+/g, ' ').trim().slice(0, 1400);
+    } catch (e) { /* abstract é opcional */ }
+    return {
+      pmid,
+      titulo: (rec.title || '').replace(/\.$/, ''),
+      journal: rec.fulljournalname || rec.source || 'PubMed',
+      ano: (rec.pubdate || '').slice(0, 4),
+      doi: doiObj ? doiObj.value : '',
+      abstract,
+    };
+  } catch (e) {
+    console.log(`PubMed indisponível: ${e.message}`);
+    return null;
+  }
 }
 
 async function main() {
@@ -215,6 +292,26 @@ async function main() {
   console.log(`\nSemana: ${semana} | Assunto recente: ${recentes.map(assuntoDe).join(',') || '—'}`);
   console.log(`Tema escolhido: ${temaDestaque} (assunto: ${assuntoDe(temaDestaque) || 'genérico'})`);
 
+  // ── Fotos: a CAPA casa com o assunto do post; inlines variados ───────────────
+  const assuntoFoto = assuntoDe(temaDestaque);
+  const alvoFoto = ALIAS_FOTO[assuntoFoto] || assuntoFoto;
+  const combinam = galeria.filter((g) => g.tag === alvoFoto);
+  const capa = combinam.length ? combinam[semana % combinam.length] : galeria[semana % galeria.length];
+  const resto = galeria.filter((g) => g.url !== capa.url);
+  const inline1 = resto[semana % resto.length];
+  const inline2 = resto[(semana + 3) % resto.length];
+  console.log(`Fotos: capa(${capa.tag}) + ${inline1.tag} + ${inline2.tag}`);
+
+  // ── Embasar o post numa pesquisa real (PubMed / NCBI) ────────────────────────
+  const estudo = await buscarEstudoPubMed(temaDestaque);
+  let contextoEstudo = '';
+  if (estudo) {
+    console.log(`Estudo PubMed: ${estudo.titulo} | ${estudo.journal} ${estudo.ano} | DOI ${estudo.doi || '(sem)'}`);
+    contextoEstudo = `\n\nACHADO DE PESQUISA (use como gancho de credibilidade — explique em linguagem simples, sem jargão, e NÃO invente números; use só o que estiver abaixo):\nEstudo: "${estudo.titulo}" (${estudo.journal}, ${estudo.ano}).\nResumo: ${estudo.abstract || '(sem resumo disponível — use o título como referência geral)'}\n`;
+  } else {
+    console.log('Sem estudo PubMed — gerando post sem âncora de pesquisa.');
+  }
+
   // ── Gemini ──────────────────────────────────────────────────────────────────
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({
@@ -233,41 +330,36 @@ Escreva ESPECIFICAMENTE e SOMENTE sobre este tema: **${temaDestaque}**
 Matérias recentes já publicadas (NÃO repita o assunto delas):
 ${recentesTxt}
 
+${contextoEstudo}
 Responda EXATAMENTE neste formato, sem nada antes nem depois:
 
-TITULO: Título chamativo e direto com número ou promessa concreta (sem aspas)
+TITULO: <título ORIGINAL que usa ESTE estilo nesta semana: ${estiloTitulo}>
 RESUMO: Uma frase que desperta curiosidade e resume o benefício principal (sem aspas)
 CORPO:
-[introdução de 2-3 linhas conectando o tema à realidade de empresas, condomínios ou gestores de RH — use dado ou estatística se possível]
+[Abertura de 2-4 linhas que fisga o leitor. Se houver um achado de pesquisa acima, ABRA com esse dado — explicado de forma simples e conectado à realidade de empresas, condomínios ou RH. Senão, abra com uma cena do dia a dia corporativo ou uma pergunta que o gestor reconheça.]
 
----
+[Desenvolva em 4 a 6 seções com SUBTÍTULOS ORIGINAIS e específicos deste tema (use ##). Cada subtítulo deve dizer algo concreto do assunto — JAMAIS use rótulos genéricos e repetidos como "A Realidade", "Por Que Funciona", "Na Prática", "Erros Comuns", "Conclusão". Varie a construção: uma seção pode trazer o problema com números, outra o porquê, outra o que fazer na prática, outra o erro mais comum. Use listas (- / ✅ / ❌) só quando ajudarem de verdade, nunca como fôrma.]
 
-## A Realidade: [subtítulo sobre o problema ou contexto]
-[2-3 parágrafos com números, fatos ou situações do dia a dia corporativo que o leitor reconhece]
+[Feche com um parágrafo que amarra o benefício + convite caloroso e sem pressão para conhecer a Benesse Gestão Esportiva e solicitar uma proposta ou conversa.]
 
-## Por Que Funciona: [subtítulo sobre a solução]
-[2-3 parágrafos explicando como a solução resolve — pode usar listas com ✅ ou ❌]
-
-## Na Prática: [subtítulo com dicas ou passo a passo]
-[2-3 parágrafos com orientações concretas e aplicáveis — use numeração ou lista]
-
-## Erros Comuns
-[3-4 erros que empresas ou condomínios cometem, no formato: ❌ **Erro X** — explicação breve + como fazer certo]
-
-## Conclusão
-[Parágrafo final resumindo o benefício + convite caloroso e sem pressão para conhecer a Benesse Gestão Esportiva e solicitar uma proposta ou conversa]
+REGRAS DO TÍTULO (críticas):
+- PROIBIDO o formato listicle como fórmula: nada de "N passos", "N dicas", "N técnicas", "N estratégias", "N benefícios", "N segredos", "N maneiras", "N formas", "N erros", "N motivos".
+- Use número no título SOMENTE se ele for a própria notícia e vier de um dado real.
+- Máx. ~12 palavras, específico, original. Nunca genérico nem igual aos títulos recentes.
 
 Links obrigatórios — insira naturalmente no texto em pelo menos 3 pontos diferentes:
-- Site: [Benesse Gestão Esportiva](https://www.benessegestaoesportiva.com.br) — use ao mencionar a empresa pela primeira vez e na conclusão
-- Instagram: [@benessegestaoesportiva](https://instagram.com/benessegestaoesportiva) — use em 1 dica ou callout no meio do texto
+- Site: [Benesse Gestão Esportiva](https://www.benessegestaoesportiva.com.br) — ao mencionar a empresa pela primeira vez e na conclusão
+- Instagram: [@benessegestaoesportiva](https://instagram.com/benessegestaoesportiva) — em 1 dica ou callout no meio do texto
 - Exemplo de callout: > 💡 Acompanhe dicas de bem-estar corporativo no nosso Instagram: [@benessegestaoesportiva](https://instagram.com/benessegestaoesportiva)
 
 Regras obrigatórias:
 - Não use front matter YAML
 - Não escreva "hashtags" nem "tags"
 - Não inclua imagens (serão inseridas depois)
+- Não invente dados nem estatísticas — se citar um número de pesquisa, use SOMENTE o do estudo acima
+- NUNCA copie termos de busca do Google Trends ao pé da letra — use-os só como inspiração, escrevendo em português natural
 - Use Markdown: ## para títulos, **negrito**, *itálico*, listas com - ou números
-- Tom: profissional mas acessível, voltado para gestores de RH, síndicos e diretores de empresa
+- Tom: editorial e profissional, mas acessível — como um bom artigo para gestores de RH, síndicos e diretores, não um manual de "passos"
 - Sempre chame a empresa de "Benesse Gestão Esportiva" (nunca abreviar para "BNS" no texto do artigo)`;
 
   async function gerarComRetry(tentativa = 1) {
@@ -311,9 +403,11 @@ Regras obrigatórias:
 
   // Inserir fotos
   corpo = corpo.replace(/\n#{2,3} /, `\n\n![${inline1.alt}](${inline1.url})\n\n## `);
-  if (/\n#{2,3}\s*Conclus/i.test(corpo)) {
-    corpo = corpo.replace(/\n#{2,3}\s*Conclus[^\n]*/i, (m) =>
-      `\n\n![${inline2.alt}](${inline2.url})${m}`);
+  // 2ª foto antes do ÚLTIMO subtítulo (estrutura agora é livre, sem "Conclusão" fixo)
+  const headings2 = [...corpo.matchAll(/\n#{2,3} /g)];
+  if (headings2.length >= 3) {
+    const pos = headings2[headings2.length - 1].index;
+    corpo = corpo.slice(0, pos) + `\n\n![${inline2.alt}](${inline2.url})` + corpo.slice(pos);
   }
 
   // Callout SEO interno no 2º subtítulo
@@ -326,13 +420,21 @@ Regras obrigatórias:
     return m;
   });
 
+  // Fonte científica (quando houver estudo do PubMed) — credibilidade + citação
+  if (estudo) {
+    const link = estudo.doi
+      ? `[${estudo.titulo}](https://doi.org/${estudo.doi})`
+      : `[${estudo.titulo}](https://pubmed.ncbi.nlm.nih.gov/${estudo.pmid}/)`;
+    corpo += `\n\n---\n\n*Fonte científica: ${link}. ${estudo.journal}, ${estudo.ano}. Via PubMed.*\n`;
+  }
+
   const frontMatter = [
     '---',
     'layout: post',
     `title: "${titulo}"`,
     `date: ${dataHoje} ${pad(hoje.getUTCHours())}:${pad(hoje.getUTCMinutes())}:${pad(hoje.getUTCSeconds())} +0000`,
     `excerpt: "${resumo}"`,
-    'author: "Equipe Benesse"',
+    'author: "Equipe Benesse Gestão Esportiva"',
     `cover: "${capa.url}"`,
     '---',
     '',
