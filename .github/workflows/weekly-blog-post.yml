@@ -38,6 +38,17 @@ jobs:
           git commit -m "[bot] Post automático - semana $SEMANA — $TEMA"
           git push
 
+      - name: Aguardar o post ficar no ar (GitHub Pages)
+        if: success()
+        run: |
+          echo "Aguardando publicacao de $POST_URL ..."
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -m 15 -L -w "%{http_code}" "$POST_URL" || echo 000)
+            if [ "$code" = "200" ]; then echo "Publicado (200) na tentativa $i."; exit 0; fi
+            echo "[$i] ainda nao ($code) - aguardando 20s"; sleep 20
+          done
+          echo "Timeout aguardando publicacao - seguindo mesmo assim."
+
       - name: Avisar no WhatsApp (CallMeBot)
         if: success()
         env:
