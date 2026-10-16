@@ -58,3 +58,18 @@ gestão de spa e academias. Posts publicados **automaticamente toda semana** por
 - **Decap CMS:** o `<script>` do Decap deve ficar no **fim do `<body>`**, nunca no `<head>` — senão a página `/admin` fica em branco.
 - Posts ficam em `_posts/`; imagens em `images/`.
 - É blog Jekyll, **não** React — sem `npm run build` de SPA aqui.
+
+## Compartilhamento (botões + preview do link)
+- **Botões "Compartilhe este artigo"** no fim de cada matéria (`_layouts/post.html`, bloco `.post-share`):
+  WhatsApp, LinkedIn, Facebook, X, E-mail, **Copiar link** e **Mais opções** (menu nativo do celular via
+  Web Share API — o botão só aparece quando o navegador suporta `navigator.share`).
+  - Links montados em Liquid com `page.url | absolute_url` (exige `url` correto em `_config.yml`).
+  - Cada clique vira **evento no GoatCounter** (`compartilhar-whatsapp`, `compartilhar-linkedin`, etc.) —
+    aparece no painel bnsblog.goatcounter.com como página/evento.
+- **Open Graph + Twitter Card** no `<head>` de `_layouts/default.html`: `og:title`, `og:description`,
+  `og:image` (= `cover` do post; sem capa, usa o logo), `og:url`, `og:type` (article/website) e `canonical`.
+  É isso que faz **LinkedIn, WhatsApp e Facebook mostrarem a foto do artigo** no card ao compartilhar.
+  - Para o card com imagem aparecer no **auto-post do Make.com**, o módulo precisa ser do tipo **Article/Link post**
+    (compartilha a URL) e não "Text Post" puro — o LinkedIn monta a imagem a partir do `og:image` da URL.
+  - LinkedIn guarda cache do preview: para forçar atualização, usar o **Post Inspector**
+    (https://www.linkedin.com/post-inspector/) com a URL da matéria.
